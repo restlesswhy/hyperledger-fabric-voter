@@ -1,0 +1,19 @@
+postgres:
+  username: exezz
+  password: 123456
+  hostname: localhost
+  port: 5432
+  dbname: bot
+server:
+  port: :8080
+  readTimeout: 5
+  writeTimeout: 5
+ledger:
+  mspID: Org1MSP
+  certPath: signature/msp/signcerts/cert.pem
+  keyPath: signature/msp/keystore/
+  tlsCertPath: signature/tls/ca.crt
+	peerEndpoint: localhost:7051
+	gatewayPeer: peer0.org1.example.com
+	channelName: mychannel
+	chaincodeName: basic
