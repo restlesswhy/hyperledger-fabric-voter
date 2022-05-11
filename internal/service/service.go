@@ -32,7 +32,12 @@ func (s *service) CreateThread(params *models.ThreadParams) error {
 		return errors.Wrap(err, "s.ledger.CreateThread()")
 	}
 
-	err = s.repo.CreateThread(params)
+	res, err := s.ledger.GetThread(threadID)
+	if err != nil {
+		return errors.Wrap(err, "s.ledger.GetThread()")
+	}
+
+	err = s.repo.CreateThread(threadID, res)
 	if err != nil {
 		return errors.Wrap(err, "s.repo.CreateThread()")
 	}

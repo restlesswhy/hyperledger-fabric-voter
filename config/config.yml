@@ -3,7 +3,7 @@ postgres:
   password: 123456
   hostname: localhost
   port: 5432
-  dbname: bot
+  dbname: ledger
 server:
   port: :8080
   readTimeout: 5
