@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fabric-voter/internal"
 	"fabric-voter/internal/models"
-	"fmt"
 
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 	gwproto "github.com/hyperledger/fabric-protos-go/gateway"
@@ -36,70 +35,29 @@ func (l *ledger) CreateThread(params *models.ThreadParams) error {
 
 	_, err := l.client.Submit("CreateThread", client.WithArguments(args...))
 	if err != nil {
-		// return errorHandling(err)
-		switch err := err.(type) {
-		case *client.EndorseError:
-			fmt.Printf("endorse error with gRPC status %v: %s\n", status.Code(err), err)
-		case *client.SubmitError:
-			return fmt.Errorf("submit error with gRPC status %v: %s", status.Code(err), err)
-		case *client.CommitStatusError:
-			if errors.Is(err, context.DeadlineExceeded) {
-				return fmt.Errorf("timeout waiting for transaction %s commit status: %s", err.TransactionID, err)
-			} else {
-				return fmt.Errorf("error obtaining commit status with gRPC status %v: %s", status.Code(err), err)
-			}
-		case *client.CommitError:
-			return fmt.Errorf("transaction %s failed to commit with status %d: %s", err.TransactionID, int32(err.Code), err)
-		}
-		/*
-		 Any error that originates from a peer or orderer node external to the gateway will have its details
-		 embedded within the gRPC status error. The following code shows how to extract that.
-		*/
-		statusErr := status.Convert(err)
-		for _, detail := range statusErr.Details() {
-			errDetail := detail.(*gwproto.ErrorDetail)
-			fmt.Printf("error from endpoint: %s, mspId: %s, message: %s\n", errDetail.Address, errDetail.MspId, errDetail.Message)
-		}
+		return errorHandling(err)
 	}
 
 	logrus.Debug("Thread successfuly created!")
 	return nil
 }
 
-func (l *ledger) CreateVote(threadID string) (string, error) {
+func (l *ledger) CreateVote(threadID string) (*models.Vote, error) {
 	logrus.Debug("Start creating vote...")
-	
+
 	txid, err := l.client.SubmitTransaction("CreateVote", threadID)
 	if err != nil {
-		// return "", errorHandling(err)
-		// return errorHandling(err)
-		switch err := err.(type) {
-		case *client.EndorseError:
-			fmt.Printf("endorse error with gRPC status %v: %s\n", status.Code(err), err)
-		case *client.SubmitError:
-			// return fmt.Errorf("submit error with gRPC status %v: %s", status.Code(err), err)
-		case *client.CommitStatusError:
-			if errors.Is(err, context.DeadlineExceeded) {
-				// return fmt.Errorf("timeout waiting for transaction %s commit status: %s", err.TransactionID, err)
-			} else {
-				// return fmt.Errorf("error obtaining commit status with gRPC status %v: %s", status.Code(err), err)
-			}
-		case *client.CommitError:
-			// return fmt.Errorf("transaction %s failed to commit with status %d: %s", err.TransactionID, int32(err.Code), err)
-		}
-		/*
-		 Any error that originates from a peer or orderer node external to the gateway will have its details
-		 embedded within the gRPC status error. The following code shows how to extract that.
-		*/
-		statusErr := status.Convert(err)
-		for _, detail := range statusErr.Details() {
-			errDetail := detail.(*gwproto.ErrorDetail)
-			fmt.Printf("error from endpoint: %s, mspId: %s, message: %s\n", errDetail.Address, errDetail.MspId, errDetail.Message)
-		}
+		return nil, errorHandling(err)
+	}
+
+	vote := &models.Vote{
+		ThreadID: threadID,
+		VoteID:   string(txid),
+		Option:   "insert your choice",
 	}
 
 	logrus.Debug("Vote successfuly created!")
-	return string(txid), nil
+	return vote, nil
 }
 
 func (l *ledger) UseVote(vote *models.Vote) error {
@@ -107,30 +65,7 @@ func (l *ledger) UseVote(vote *models.Vote) error {
 
 	_, err := l.client.SubmitTransaction("UseVote", vote.ThreadID, vote.VoteID, vote.Option)
 	if err != nil {
-		// return errorHandling(err)
-		switch err := err.(type) {
-		case *client.EndorseError:
-			fmt.Printf("endorse error with gRPC status %v: %s\n", status.Code(err), err)
-		case *client.SubmitError:
-			return fmt.Errorf("submit error with gRPC status %v: %s", status.Code(err), err)
-		case *client.CommitStatusError:
-			if errors.Is(err, context.DeadlineExceeded) {
-				return fmt.Errorf("timeout waiting for transaction %s commit status: %s", err.TransactionID, err)
-			} else {
-				return fmt.Errorf("error obtaining commit status with gRPC status %v: %s", status.Code(err), err)
-			}
-		case *client.CommitError:
-			return fmt.Errorf("transaction %s failed to commit with status %d: %s", err.TransactionID, int32(err.Code), err)
-		}
-		/*
-		 Any error that originates from a peer or orderer node external to the gateway will have its details
-		 embedded within the gRPC status error. The following code shows how to extract that.
-		*/
-		statusErr := status.Convert(err)
-		for _, detail := range statusErr.Details() {
-			errDetail := detail.(*gwproto.ErrorDetail)
-			fmt.Printf("error from endpoint: %s, mspId: %s, message: %s\n", errDetail.Address, errDetail.MspId, errDetail.Message)
-		}
+		return errorHandling(err)
 	}
 
 	logrus.Debug("Anon vote used!")
@@ -142,30 +77,7 @@ func (l *ledger) EndThread(threadID string) error {
 
 	_, err := l.client.SubmitTransaction("EndThread", threadID)
 	if err != nil {
-		// return errorHandling(err)
-		switch err := err.(type) {
-		case *client.EndorseError:
-			fmt.Printf("endorse error with gRPC status %v: %s\n", status.Code(err), err)
-		case *client.SubmitError:
-			// return fmt.Errorf("submit error with gRPC status %v: %s", status.Code(err), err)
-		case *client.CommitStatusError:
-			if errors.Is(err, context.DeadlineExceeded) {
-				// return fmt.Errorf("timeout waiting for transaction %s commit status: %s", err.TransactionID, err)
-			} else {
-				// return fmt.Errorf("error obtaining commit status with gRPC status %v: %s", status.Code(err), err)
-			}
-		case *client.CommitError:
-			return fmt.Errorf("transaction %s failed to commit with status %d: %s", err.TransactionID, int32(err.Code), err)
-		}
-		/*
-		 Any error that originates from a peer or orderer node external to the gateway will have its details
-		 embedded within the gRPC status error. The following code shows how to extract that.
-		*/
-		statusErr := status.Convert(err)
-		for _, detail := range statusErr.Details() {
-			errDetail := detail.(*gwproto.ErrorDetail)
-			fmt.Printf("error from endpoint: %s, mspId: %s, message: %s\n", errDetail.Address, errDetail.MspId, errDetail.Message)
-		}
+		return errorHandling(err)
 	}
 
 	logrus.Debug("Thread closed!")
@@ -195,17 +107,17 @@ func errorHandling(err error) error {
 
 	switch err := err.(type) {
 	case *client.EndorseError:
-		return fmt.Errorf("endorse error with gRPC status %v: %s", status.Code(err), err)
+		logrus.Errorf("endorse error with gRPC status %v: %s", status.Code(err), err)
 	case *client.SubmitError:
-		return fmt.Errorf("submit error with gRPC status %v: %s", status.Code(err), err)
+		logrus.Errorf("submit error with gRPC status %v: %s", status.Code(err), err)
 	case *client.CommitStatusError:
 		if errors.Is(err, context.DeadlineExceeded) {
-			return fmt.Errorf("timeout waiting for transaction %s commit status: %s", err.TransactionID, err)
+			logrus.Errorf("timeout waiting for transaction %s commit status: %s", err.TransactionID, err)
 		} else {
-			return fmt.Errorf("error obtaining commit status with gRPC status %v: %s", status.Code(err), err)
+			logrus.Errorf("error obtaining commit status with gRPC status %v: %s", status.Code(err), err)
 		}
 	case *client.CommitError:
-		return fmt.Errorf("transaction %s failed to commit with status %d: %s", err.TransactionID, int32(err.Code), err)
+		logrus.Errorf("transaction %s failed to commit with status %d: %s", err.TransactionID, int32(err.Code), err)
 	}
 	/*
 	 Any error that originates from a peer or orderer node external to the gateway will have its details
@@ -214,7 +126,7 @@ func errorHandling(err error) error {
 	statusErr := status.Convert(err)
 	for _, detail := range statusErr.Details() {
 		errDetail := detail.(*gwproto.ErrorDetail)
-		return fmt.Errorf("error from endpoint: %s, mspId: %s, message: %s", errDetail.Address, errDetail.MspId, errDetail.Message)
+		logrus.Errorf("error from endpoint: %s, mspId: %s, message: %s", errDetail.Address, errDetail.MspId, errDetail.Message)
 	}
 
 	return err

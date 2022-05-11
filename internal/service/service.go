@@ -3,6 +3,10 @@ package service
 import (
 	"fabric-voter/internal"
 	"fabric-voter/internal/models"
+	"fmt"
+	"time"
+
+	"github.com/pkg/errors"
 )
 
 type service struct {
@@ -18,21 +22,65 @@ func NewService(repo internal.Repository, ledger internal.Ledger) internal.Servi
 }
 
 func (s *service) CreateThread(params *models.ThreadParams) error {
-	return nil
+
+	var now = time.Now()
+	var threadID = fmt.Sprintf("file%d", now.Unix()*1e3+int64(now.Nanosecond())/1e6)
+	params.ID = threadID
+
+	err := s.ledger.CreateThread(params)
+	if err != nil {
+		return errors.Wrap(err, "s.ledger.CreateThread()")
+	}
+
+	err = s.repo.CreateThread(params)
+	if err != nil {
+		return errors.Wrap(err, "s.repo.CreateThread()")
+	}
+
+	return err
 }
 
 func (s *service) GetThread(threadID string) (*models.Thread, error) {
-	return nil, nil
+
+	thread, err := s.repo.GetThread(threadID)
+	if err.Error() == "err no rows" {
+		thread, err = s.ledger.GetThread(threadID)
+		if err != nil {
+			return nil, errors.Wrap(err, "s.ledger.GetThread()")
+		}
+	} else if err != nil {
+		return nil, errors.Wrap(err, "s.repo.GetThread()")
+	}
+
+	return thread, nil
 }
 
-func (s *service) CreateVote(threadID string) (string, error) {
-	return "", nil
+func (s *service) CreateVote(threadID string) (*models.Vote, error) {
+
+	vote, err := s.ledger.CreateVote(threadID)
+	if err != nil {
+		return nil, errors.Wrap(err, "s.ledger.CreateVote()")
+	}
+
+	return vote, nil
 }
 
 func (s *service) UseVote(vote *models.Vote) error {
-	return nil
+
+	err := s.ledger.UseVote(vote)
+	if err != nil {
+		return errors.Wrap(err, "s.ledger.UseVote()")
+	}
+
+	return err
 }
 
 func (s *service) EndThread(threadID string) error {
+
+	err := s.ledger.EndThread(threadID)
+	if err != nil {
+		return errors.Wrap(err, "s.ledger.EndThread()")
+	}
+
 	return nil
 }

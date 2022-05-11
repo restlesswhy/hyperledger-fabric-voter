@@ -74,27 +74,15 @@ func CreateDB(pool *pgxpool.Pool, dbName string) error {
 
 func initDB(pool *pgxpool.Pool) error {
 	query := `
-		CREATE TABLE IF NOT EXISTS buttons (
-			button_id integer NOT NULL PRIMARY KEY,
-			message_id integer NOT NULL UNIQUE,
-			amount integer NOT NULL,
-			firstname varchar(250) NOT NULL,
-			lastname varchar(250) NOT NULL,
-			username varchar(250) NOT NULL
-		);
-
-		CREATE TABLE IF NOT EXISTS transactions (
-			tx_id SERIAL PRIMARY KEY,
-			button_id integer NOT NULL,
-			amount integer NOT NULL,
-			category varchar(200) NOT NULL,
-			time timestamp NOT NULL,
-			CONSTRAINT fk_button_id
-				FOREIGN KEY(button_id)
-				REFERENCES buttons(button_id) 
+		CREATE TABLE IF NOT EXISTS threads (
+			
+			thread_id varchar(100) NOT NULL PRIMARY KEY,
+			category varchar(255),
+			theme text,
+			description text NOT NULL,
+			options text ARRAY NOT NULL
 		);
 	`
-
 	_, err := pool.Exec(context.Background(), query)
 	if err != nil {
 		return err

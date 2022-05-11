@@ -1,7 +1,7 @@
 package models
 
 type ThreadParams struct {
-	ID          string   `json:"-"`
+	ID          string   `json:"-" db:"thread_id"`
 	Category    string   `json:"category"`
 	Theme       string   `json:"theme"`
 	Description string   `json:"description"`

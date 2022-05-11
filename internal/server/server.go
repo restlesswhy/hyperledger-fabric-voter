@@ -5,7 +5,6 @@ import (
 	"fabric-voter/config"
 	"fabric-voter/internal/handler"
 	"fabric-voter/internal/ledger"
-	"fabric-voter/internal/models"
 	"fabric-voter/internal/repository"
 	"fabric-voter/internal/service"
 	"fmt"
@@ -24,19 +23,18 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-
 const (
 	maxHeaderBytes = 1 << 20
 )
 
 type Server struct {
-	cfg *config.Config
+	cfg  *config.Config
 	pool *pgxpool.Pool
 }
 
 func NewServer(cfg *config.Config, pool *pgxpool.Pool) *Server {
 	return &Server{
-		cfg: cfg,
+		cfg:  cfg,
 		pool: pool,
 	}
 }
@@ -71,49 +69,49 @@ func (s *Server) Run() error {
 	repo := repository.NewRepo(s.pool)
 	ledger := ledger.NewLedger(contract)
 
-	params := &models.ThreadParams{
-		ID: "thread2",
-		Theme: "Who wand to eat?",
-		Options: []string{"a", "b", "c"},
-	}
+	// params := &models.ThreadParams{
+	// 	ID: "thread2",
+	// 	Theme: "Who wand to eat?",
+	// 	Options: []string{"a", "b", "c"},
+	// }
 
-	err = ledger.CreateThread(params)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	thr, err := ledger.GetThread("thread2")
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	fmt.Println(*thr)
-	tx, err := ledger.CreateVote("thread2")
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	fmt.Println(tx)
-	vote := &models.Vote{
-		ThreadID: "thread2",
-		VoteID: tx,
-		Option: "a",
-	}
-	err = ledger.UseVote(vote)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	err = ledger.EndThread("thread2")
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	thr, err = ledger.GetThread("thread2")
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	fmt.Println(*thr)
+	// err = ledger.CreateThread(params)
+	// if err != nil {
+	// 	logrus.Fatal(err)
+	// }
+	// thr, err := ledger.GetThread("thread2")
+	// if err != nil {
+	// 	logrus.Fatal(err)
+	// }
+	// fmt.Println(*thr)
+	// tx, err := ledger.CreateVote("thread2")
+	// if err != nil {
+	// 	logrus.Fatal(err)
+	// }
+	// fmt.Println(tx)
+	// vote := &models.Vote{
+	// 	ThreadID: "thread2",
+	// 	VoteID: tx,
+	// 	Option: "a",
+	// }
+	// err = ledger.UseVote(vote)
+	// if err != nil {
+	// 	logrus.Fatal(err)
+	// }
+	// err = ledger.EndThread("thread2")
+	// if err != nil {
+	// 	logrus.Fatal(err)
+	// }
+	// thr, err = ledger.GetThread("thread2")
+	// if err != nil {
+	// 	logrus.Fatal(err)
+	// }
+	// fmt.Println(*thr)
 	// ledger.InitLedger()
 	// ledger.ReadAssetByID()
 
 	service := service.NewService(repo, ledger)
-	handler := handler.NewHandler(service) 
+	handler := handler.NewHandler(service)
 
 	server := &http.Server{
 		Addr:           s.cfg.Server.Port,
@@ -123,7 +121,7 @@ func (s *Server) Run() error {
 		MaxHeaderBytes: maxHeaderBytes,
 	}
 
-	go func ()  {
+	go func() {
 		if err := server.ListenAndServe(); err != nil {
 			logrus.Fatal(err)
 		}
