@@ -127,6 +127,7 @@ func (s *Server) Run() error {
 		}
 	}()
 
+	logrus.Info("server listening...")
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 

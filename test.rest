@@ -1,0 +1,43 @@
+GET http://localhost:8080/create_thread
+Content-Type: application/json
+
+{
+    "category": "food",
+    "theme": "dinner",
+    "description": "Who want to eat?",
+    "options": ["a", "b", "c"]
+}
+###
+
+GET http://localhost:8080/get_thread
+Content-Type: application/json
+
+{
+    "thread_id": "thread1652303432620"
+}
+###
+
+GET http://localhost:8080/create_vote
+Content-Type: application/json
+
+{
+    "thread_id": "thread1652303432620"
+}
+###
+
+GET http://localhost:8080/use_vote
+Content-Type: application/json
+
+{
+    "thread_id": "thread1652303432620",
+    "vote_id": "0bea488f9f291d2a09170b43034935fd327830e29df9ba910dd701a31193386b",
+    "option": "a"
+}
+###
+
+GET http://localhost:8080/end_thread
+Content-Type: application/json
+
+{
+    "thread_id": "thread1652303432620"
+}

@@ -85,7 +85,7 @@ func initDB(pool *pgxpool.Pool) error {
 	// 		status varchar(30)
 	// 	);
 	// `
-	query := `CREATE TABLE threads (
+	query := `CREATE TABLE IF NOT EXISTS threads (
 		thread_id varchar(250) PRIMARY KEY,
 		thread JSONB
 	);`

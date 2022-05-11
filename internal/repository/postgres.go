@@ -46,8 +46,23 @@ func (r *repo) CreateThread(threadID string, thread *models.Thread) error {
 }
 
 func (r *repo) GetThread(threadID string) (*models.Thread, error) {
+	q := `SELECT thread
+			FROM threads
+			WHERE thread_id = $1;`
+	
+	j := pgtype.JSONB{}
+	err := r.pool.QueryRow(context.Background(), q, threadID).Scan(&j)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	res := &models.Thread{}
+	err = json.Unmarshal(j.Bytes, &res)
+	if err != nil {
+		return nil, errors.Wrap(err, "err unmarshal thread")
+	}
+	
+	return res, nil
 }
 
 func (r *repo) CreateVote(threadID string) (string, error) {
