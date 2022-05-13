@@ -13,9 +13,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type Ledger interface {
-}
-
 type ledger struct {
 	client *client.Contract
 }

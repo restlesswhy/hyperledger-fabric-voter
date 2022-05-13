@@ -1,12 +1,14 @@
 package server
 
 import (
+	"context"
 	"crypto/x509"
 	"fabric-voter/config"
 	"fabric-voter/internal/handler"
 	"fabric-voter/internal/ledger"
 	"fabric-voter/internal/repository"
 	"fabric-voter/internal/service"
+	"fabric-voter/internal/synchronizer"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -68,50 +70,16 @@ func (s *Server) Run() error {
 
 	repo := repository.NewRepo(s.pool)
 	ledger := ledger.NewLedger(contract)
-
-	// params := &models.ThreadParams{
-	// 	ID: "thread2",
-	// 	Theme: "Who wand to eat?",
-	// 	Options: []string{"a", "b", "c"},
-	// }
-
-	// err = ledger.CreateThread(params)
-	// if err != nil {
-	// 	logrus.Fatal(err)
-	// }
-	// thr, err := ledger.GetThread("thread2")
-	// if err != nil {
-	// 	logrus.Fatal(err)
-	// }
-	// fmt.Println(*thr)
-	// tx, err := ledger.CreateVote("thread2")
-	// if err != nil {
-	// 	logrus.Fatal(err)
-	// }
-	// fmt.Println(tx)
-	// vote := &models.Vote{
-	// 	ThreadID: "thread2",
-	// 	VoteID: tx,
-	// 	Option: "a",
-	// }
-	// err = ledger.UseVote(vote)
-	// if err != nil {
-	// 	logrus.Fatal(err)
-	// }
-	// err = ledger.EndThread("thread2")
-	// if err != nil {
-	// 	logrus.Fatal(err)
-	// }
-	// thr, err = ledger.GetThread("thread2")
-	// if err != nil {
-	// 	logrus.Fatal(err)
-	// }
-	// fmt.Println(*thr)
-	// ledger.InitLedger()
-	// ledger.ReadAssetByID()
-
+	synchro := synchronizer.NewSynchro(network, repo, s.cfg)
 	service := service.NewService(repo, ledger)
 	handler := handler.NewHandler(service)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	go func ()  {
+		synchro.Run(ctx)
+	}()
 
 	server := &http.Server{
 		Addr:           s.cfg.Server.Port,
