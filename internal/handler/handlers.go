@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fabric-voter/internal"
 	"fabric-voter/internal/models"
+	"fmt"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
@@ -31,12 +32,12 @@ func (h *handler) CreateThread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.service.CreateThread(params)
+	id, err := h.service.CreateThread(params)
 	if err != nil {
 		http.Error(w, "failed create thread", http.StatusBadRequest)
 	}
 
-	httpResp(w, "successfuly created")
+	httpResp(w, fmt.Sprintf("successfuly created with id: %s", id))
 }
 
 func (h *handler) GetThread(w http.ResponseWriter, r *http.Request) {

@@ -21,15 +21,15 @@ func NewRepo(pool *pgxpool.Pool) internal.Repository {
 	}
 }
 
-func (r *repo) CreateThread(threadID string, thread *models.Thread) error {
-	t, err := json.Marshal(thread)
-	if err != nil {
-		return errors.Wrap(err, "err marshal thread")
-	}
-	
+func (r *repo) CreateThread(threadID string, thread []byte) error {
+	// t, err := json.Marshal(thread)
+	// if err != nil {
+	// 	return errors.Wrap(err, "err marshal thread")
+	// }
+
 	q := `INSERT INTO threads (thread_id, thread) VALUES ($1, $2);`
 	f := pgtype.JSONB{}
-	err = f.Set(t)
+	err := f.Set(thread)
 	if err != nil {
 		return errors.Wrap(err, "err jsonb bytes")
 	}
@@ -49,32 +49,48 @@ func (r *repo) GetThread(threadID string) (*models.Thread, error) {
 	q := `SELECT thread
 			FROM threads
 			WHERE thread_id = $1;`
-	
-	j := pgtype.JSONB{}
-	err := r.pool.QueryRow(context.Background(), q, threadID).Scan(&j)
+
+	jb := pgtype.JSONB{}
+	err := r.pool.QueryRow(context.Background(), q, threadID).Scan(&jb)
 	if err != nil {
 		return nil, err
 	}
 
 	res := &models.Thread{}
-	err = json.Unmarshal(j.Bytes, &res)
+	err = json.Unmarshal(jb.Bytes, &res)
 	if err != nil {
 		return nil, errors.Wrap(err, "err unmarshal thread")
 	}
-	
+
 	return res, nil
 }
 
-func (r *repo) CreateVote(threadID string) (string, error) {
+func (r *repo) UpdateThread(threadID string, thread []byte) error {
+	q := `UPDATE threads
+			SET thread = $1
+			WHERE thread_id = $2;`
 
-	return "", nil
-}
+	jb := pgtype.JSONB{}
+	jb.Set(thread)
 
-func (r *repo) UseVote(vote *models.Vote) error {
+	_, err := r.pool.Exec(context.Background(), q, jb, threadID)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (r *repo) EndThread(threadID string) error {
-	return nil
-}
+// func (r *repo) CreateVote(threadID string) (string, error) {
+
+// 	return "", nil
+// }
+
+// func (r *repo) UseVote(vote *models.Vote) error {
+
+// 	return nil
+// }
+
+// func (r *repo) EndThread(threadID string) error {
+// 	return nil
+// }

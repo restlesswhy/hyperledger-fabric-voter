@@ -13,7 +13,7 @@ GET http://localhost:8080/get_thread
 Content-Type: application/json
 
 {
-    "thread_id": "thread1652303432620"
+    "thread_id": "thread1652543185077"
 }
 ###
 
@@ -21,7 +21,7 @@ GET http://localhost:8080/create_vote
 Content-Type: application/json
 
 {
-    "thread_id": "thread1652303432620"
+    "thread_id": "thread1652543185077"
 }
 ###
 
@@ -29,8 +29,8 @@ GET http://localhost:8080/use_vote
 Content-Type: application/json
 
 {
-    "thread_id": "thread1652303432620",
-    "vote_id": "0bea488f9f291d2a09170b43034935fd327830e29df9ba910dd701a31193386b",
+    "thread_id": "thread1652543185077",
+    "vote_id": "42dffdf18263cd97897290a2cc2f70545627c19a76e1258a9162b0584ec3e50d",
     "option": "a"
 }
 ###
@@ -39,5 +39,5 @@ GET http://localhost:8080/end_thread
 Content-Type: application/json
 
 {
-    "thread_id": "thread1652303432620"
+    "thread_id": "thread1652543185077"
 }

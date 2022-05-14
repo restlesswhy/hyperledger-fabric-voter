@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
 type service struct {
@@ -22,7 +21,7 @@ func NewService(repo internal.Repository, ledger internal.Ledger) internal.Servi
 	}
 }
 
-func (s *service) CreateThread(params *models.ThreadParams) error {
+func (s *service) CreateThread(params *models.ThreadParams) (string, error) {
 
 	var now = time.Now()
 	var threadID = fmt.Sprintf("thread%d", now.Unix()*1e3+int64(now.Nanosecond())/1e6)
@@ -30,22 +29,10 @@ func (s *service) CreateThread(params *models.ThreadParams) error {
 
 	err := s.ledger.CreateThread(params)
 	if err != nil {
-		return errors.Wrap(err, "s.ledger.CreateThread()")
+		return "", errors.Wrap(err, "s.ledger.CreateThread()")
 	}
 
-	logrus.Info(threadID, " created on bc")
-
-	res, err := s.ledger.GetThread(threadID)
-	if err != nil {
-		return errors.Wrap(err, "s.ledger.GetThread()")
-	}
-
-	err = s.repo.CreateThread(threadID, res)
-	if err != nil {
-		return errors.Wrap(err, "s.repo.CreateThread()")
-	}
-
-	return err
+	return threadID, err
 }
 
 func (s *service) GetThread(threadID string) (*models.Thread, error) {
@@ -62,6 +49,10 @@ func (s *service) GetThread(threadID string) (*models.Thread, error) {
 		return nil, errors.Wrap(err, "s.repo.GetThread()")
 	}
 
+	// thread, err := s.repo.GetThread(threadID)
+	// if err != nil {
+	// 	return nil, err
+	// }	
 	return thread, nil
 }
 
