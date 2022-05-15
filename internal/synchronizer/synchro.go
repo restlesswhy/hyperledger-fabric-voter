@@ -1,12 +1,9 @@
 package synchronizer
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fabric-voter/config"
 	"fabric-voter/internal"
-	"fmt"
 	"strings"
 
 	"github.com/hyperledger/fabric-gateway/pkg/client"
@@ -64,12 +61,4 @@ func (s *synchronizer) Run(ctx context.Context) {
 		}
 	}
 	logrus.Info("end listening events")
-}
-
-func formatJSON(data []byte) string {
-	var result bytes.Buffer
-	if err := json.Indent(&result, data, "", "  "); err != nil {
-		panic(fmt.Errorf("failed to parse JSON: %w", err))
-	}
-	return result.String()
 }

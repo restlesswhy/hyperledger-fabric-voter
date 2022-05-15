@@ -22,24 +22,18 @@ func NewRepo(pool *pgxpool.Pool) internal.Repository {
 }
 
 func (r *repo) CreateThread(threadID string, thread []byte) error {
-	// t, err := json.Marshal(thread)
-	// if err != nil {
-	// 	return errors.Wrap(err, "err marshal thread")
-	// }
-
-	q := `INSERT INTO threads (thread_id, thread) VALUES ($1, $2);`
-	f := pgtype.JSONB{}
-	err := f.Set(thread)
+	q := `INSERT INTO threads
+			(thread_id, thread)
+			VALUES ($1, $2);`
+	jb := pgtype.JSONB{}
+	err := jb.Set(thread)
 	if err != nil {
-		return errors.Wrap(err, "err jsonb bytes")
+		return errors.Wrap(err, "jb.Set()")
 	}
-	// q := `INSERT INTO threads
-	// 		SELECT thread_id, category, theme, description, creator, options, win_option, status
-	// 		FROM json_populate_record (NULL::threads, $1);`
 
-	_, err = r.pool.Exec(context.Background(), q, threadID, f)
+	_, err = r.pool.Exec(context.Background(), q, threadID, jb)
 	if err != nil {
-		return errors.Wrap(err, "err exec thread")
+		return errors.Wrap(err, "r.pool.Exec()")
 	}
 
 	return nil
@@ -53,13 +47,13 @@ func (r *repo) GetThread(threadID string) (*models.Thread, error) {
 	jb := pgtype.JSONB{}
 	err := r.pool.QueryRow(context.Background(), q, threadID).Scan(&jb)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "r.pool.QueryRow()")
 	}
 
 	res := &models.Thread{}
 	err = json.Unmarshal(jb.Bytes, &res)
 	if err != nil {
-		return nil, errors.Wrap(err, "err unmarshal thread")
+		return nil, errors.Wrap(err, "json.Unmarshal()")
 	}
 
 	return res, nil
@@ -71,26 +65,15 @@ func (r *repo) UpdateThread(threadID string, thread []byte) error {
 			WHERE thread_id = $2;`
 
 	jb := pgtype.JSONB{}
-	jb.Set(thread)
-
-	_, err := r.pool.Exec(context.Background(), q, jb, threadID)
+	err := jb.Set(thread)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "jb.Set()")
+	}
+
+	_, err = r.pool.Exec(context.Background(), q, jb, threadID)
+	if err != nil {
+		return errors.Wrap(err, "r.pool.Exec()")
 	}
 
 	return nil
 }
-
-// func (r *repo) CreateVote(threadID string) (string, error) {
-
-// 	return "", nil
-// }
-
-// func (r *repo) UseVote(vote *models.Vote) error {
-
-// 	return nil
-// }
-
-// func (r *repo) EndThread(threadID string) error {
-// 	return nil
-// }

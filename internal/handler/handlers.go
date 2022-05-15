@@ -35,9 +35,10 @@ func (h *handler) CreateThread(w http.ResponseWriter, r *http.Request) {
 	id, err := h.service.CreateThread(params)
 	if err != nil {
 		http.Error(w, "failed create thread", http.StatusBadRequest)
+		return
 	}
 
-	httpResp(w, fmt.Sprintf("successfuly created with id: %s", id))
+	httpResp(w, fmt.Sprintf("thread created with id: %s", id), http.StatusOK)
 }
 
 func (h *handler) GetThread(w http.ResponseWriter, r *http.Request) {
@@ -50,58 +51,62 @@ func (h *handler) GetThread(w http.ResponseWriter, r *http.Request) {
 
 	thread, err := h.service.GetThread(threadResp.ThreadID)
 	if err != nil {
-		http.Error(w, "failed to get thread", http.StatusBadRequest)
+		httpResp(w, "failed to get thread", http.StatusBadRequest)
+		return
 	}
 
-	httpResp(w, thread)
+	httpResp(w, thread, http.StatusOK)
 }
 
 func (h *handler) CreateVote(w http.ResponseWriter, r *http.Request) {
 	threadResp := &ThreadResponse{}
 	if err := json.NewDecoder(r.Body).Decode(threadResp); err != nil {
 		logrus.Errorf("failed to decode filter from request: %s", err)
-		http.Error(w, "failed to decode request object", http.StatusBadRequest)
+		httpResp(w, "failed to decode request object", http.StatusBadRequest)
 		return
 	}
 
 	vote, err := h.service.CreateVote(threadResp.ThreadID)
 	if err != nil {
-		http.Error(w, "failed create vote", http.StatusBadRequest)
+		httpResp(w, "failed create vote", http.StatusBadRequest)
+		return
 	}
 
-	httpResp(w, vote)
+	httpResp(w, vote, http.StatusOK)
 }
 
 func (h *handler) UseVote(w http.ResponseWriter, r *http.Request) {
 	voteResp := &models.Vote{}
 	if err := json.NewDecoder(r.Body).Decode(voteResp); err != nil {
 		logrus.Errorf("failed to decode filter from request: %s", err)
-		http.Error(w, "failed to decode request object", http.StatusBadRequest)
+		httpResp(w, "failed to decode request object", http.StatusBadRequest)
 		return
 	}
 
 	err := h.service.UseVote(voteResp)
 	if err != nil {
-		http.Error(w, "failed to use vote", http.StatusBadRequest)
+		httpResp(w, "failed to use vote", http.StatusBadRequest)
+		return
 	}
 
-	httpResp(w, "successfuly created")
+	httpResp(w, "successfuly created", http.StatusOK)
 }
 
 func (h *handler) EndThread(w http.ResponseWriter, r *http.Request) {
 	threadResp := &ThreadResponse{}
 	if err := json.NewDecoder(r.Body).Decode(threadResp); err != nil {
 		logrus.Errorf("failed to decode filter from request: %s", err)
-		http.Error(w, "failed to decode request object", http.StatusBadRequest)
+		httpResp(w, "failed to decode request object", http.StatusBadRequest)
 		return
 	}
 
 	err := h.service.EndThread(threadResp.ThreadID)
 	if err != nil {
-		http.Error(w, "failed create vote", http.StatusBadRequest)
+		httpResp(w, "failed to end thread", http.StatusBadRequest)
+		return
 	}
 
-	httpResp(w, "successfuly ended thread")
+	httpResp(w, "successfuly ended thread", http.StatusOK)
 }
 
 type Response struct {
@@ -109,10 +114,10 @@ type Response struct {
 	Data   interface{} `json:"data"`
 }
 
-func httpResp(w http.ResponseWriter, data interface{}) {
+func httpResp(w http.ResponseWriter, data interface{}, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	resp := &Response{
-		Status: http.StatusOK,
+		Status: status,
 		Data:   data,
 	}
 

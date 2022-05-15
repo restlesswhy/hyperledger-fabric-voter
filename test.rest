@@ -13,7 +13,7 @@ GET http://localhost:8080/get_thread
 Content-Type: application/json
 
 {
-    "thread_id": "thread1652543185077"
+    "thread_id": "thread1652626451350"
 }
 ###
 

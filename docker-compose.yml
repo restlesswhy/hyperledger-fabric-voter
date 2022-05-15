@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+    postgres:
+        container_name: vote_db
+        image: postgres:latest
+        restart: always
+        ports:
+            - "5432:5432"
+        env_file:
+            - .env
+        volumes:
+            - ./db_data:/var/lib/postgresql/data
+        networks: 
+            - vote_network
+
+    app:
+        container_name: vote_app
+        build: .
+        restart: always
+        ports:
+            - "8080:8080"
+        depends_on:
+            - postgres
+        volumes:
+            - ./config:/bot/config
+        networks: 
+            - vote_network
+
+networks:
+    vote_network:
+        driver: bridge

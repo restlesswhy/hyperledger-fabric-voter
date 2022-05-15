@@ -90,7 +90,7 @@ func (l *ledger) GetThread(threadID string) (*models.Thread, error) {
 	}
 
 	thread := &models.Thread{}
-	err = json.Unmarshal(res, thread)
+	err = json.Unmarshal(res, &thread)
 	if err != nil {
 		return nil, err
 	}
