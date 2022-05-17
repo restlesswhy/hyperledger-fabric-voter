@@ -117,12 +117,13 @@ func (h *handler) CreateAnonThread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.service.CreateThread(params)
+	id, err := h.service.CreateAnonThread(params)
 	if err != nil {
 		http.Error(w, "failed create thread", http.StatusBadRequest)
+		return
 	}
 
-	httpResp(w, "successfuly created")
+	httpResp(w, fmt.Sprintf("thread created with id: %s", id), http.StatusOK)
 }
 
 func (h *handler) GetAnonThread(w http.ResponseWriter, r *http.Request) {
@@ -133,44 +134,47 @@ func (h *handler) GetAnonThread(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	thread, err := h.service.GetThread(threadResp.ThreadID)
+	thread, err := h.service.GetAnonThread(threadResp.ThreadID)
 	if err != nil {
-		http.Error(w, "failed to get thread", http.StatusBadRequest)
+		httpResp(w, "failed to get thread", http.StatusBadRequest)
+		return
 	}
 
-	httpResp(w, thread)
+	httpResp(w, thread, http.StatusOK)
 }
 
 func (h *handler) UseAnonVote(w http.ResponseWriter, r *http.Request) {
-	voteResp := &models.Vote{}
+	voteResp := &models.AnonVote{}
 	if err := json.NewDecoder(r.Body).Decode(voteResp); err != nil {
 		logrus.Errorf("failed to decode filter from request: %s", err)
 		http.Error(w, "failed to decode request object", http.StatusBadRequest)
 		return
 	}
 
-	err := h.service.UseVote(voteResp)
+	err := h.service.UseAnonVote(voteResp)
 	if err != nil {
-		http.Error(w, "failed to use vote", http.StatusBadRequest)
+		httpResp(w, "failed to use vote", http.StatusBadRequest)
+		return
 	}
 
-	httpResp(w, "successfuly created")
+	httpResp(w, "successfuly created", http.StatusOK)
 }
 
 func (h *handler) EndAnonThread(w http.ResponseWriter, r *http.Request) {
-	threadResp := &ThreadResponse{}
+	threadResp := &models.EndAnonData{}
 	if err := json.NewDecoder(r.Body).Decode(threadResp); err != nil {
 		logrus.Errorf("failed to decode filter from request: %s", err)
 		http.Error(w, "failed to decode request object", http.StatusBadRequest)
 		return
 	}
 
-	err := h.service.EndThread(threadResp.ThreadID)
+	err := h.service.EndAnonThread(threadResp)
 	if err != nil {
-		http.Error(w, "failed create vote", http.StatusBadRequest)
+		httpResp(w, "failed to end thread", http.StatusBadRequest)
+		return
 	}
 
-	httpResp(w, "successfuly ended thread")
+	httpResp(w, "successfuly ended thread", http.StatusOK)
 }
 
 type Response struct {

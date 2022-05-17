@@ -52,7 +52,7 @@ func (s *service) GetThread(threadID string) (*models.Thread, error) {
 	// thread, err := s.repo.GetThread(threadID)
 	// if err != nil {
 	// 	return nil, err
-	// }	
+	// }
 	return thread, nil
 }
 
@@ -79,6 +79,50 @@ func (s *service) UseVote(vote *models.Vote) error {
 func (s *service) EndThread(threadID string) error {
 
 	err := s.ledger.EndThread(threadID)
+	if err != nil {
+		return errors.Wrap(err, "s.ledger.EndThread()")
+	}
+
+	return nil
+}
+
+func (s *service) CreateAnonThread(params *models.ThreadParams) (string, error) {
+
+	var now = time.Now()
+	var threadID = fmt.Sprintf("thread%d", now.Unix()*1e3+int64(now.Nanosecond())/1e6)
+	params.ID = threadID
+
+	err := s.ledger.CreateAnonThread(params)
+	if err != nil {
+		return "", errors.Wrap(err, "s.ledger.CreateThread()")
+	}
+
+	return threadID, nil
+}
+
+func (s *service) GetAnonThread(threadID string) (*models.AnonThread, error) {
+
+	thread, err := s.ledger.GetAnonThread(threadID)
+	if err != nil {
+		return nil, errors.Wrap(err, "s.ledger.GetThread()")
+	}
+
+	return thread, nil
+}
+
+func (s *service) UseAnonVote(vote *models.AnonVote) error {
+
+	err := s.ledger.UseAnonVote(vote)
+	if err != nil {
+		return errors.Wrap(err, "s.ledger.UseVote()")
+	}
+
+	return nil
+}
+
+func (s *service) EndAnonThread(data *models.EndAnonData) error {
+
+	err := s.ledger.EndAnonThread(data)
 	if err != nil {
 		return errors.Wrap(err, "s.ledger.EndThread()")
 	}

@@ -9,8 +9,8 @@ type Service interface {
 	UseVote(vote *models.Vote) error
 	EndThread(threadID string) error
 
-	CreateAnonThread(params *models.ThreadParams) error
+	CreateAnonThread(params *models.ThreadParams) (string, error)
 	GetAnonThread(threadID string) (*models.AnonThread, error)
 	UseAnonVote(vote *models.AnonVote) error
-	EndAnonThread(threadID string) error
+	EndAnonThread(data *models.EndAnonData) error
 }

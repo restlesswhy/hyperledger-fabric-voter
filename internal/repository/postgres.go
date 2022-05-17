@@ -77,3 +77,15 @@ func (r *repo) UpdateThread(threadID string, thread []byte) error {
 
 	return nil
 }
+
+func (r *repo) CreateAnonThread(threadID string, thread []byte) error {
+	return nil
+}
+
+func (r *repo) UpdateAnonThread(threadID string, thread []byte) error {
+	return nil
+}
+
+func (r *repo) GetAnonThread(threadID string) (*models.AnonThread, error) {
+	return nil, nil
+}

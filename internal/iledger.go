@@ -12,5 +12,5 @@ type Ledger interface {
 	CreateAnonThread(params *models.ThreadParams) error
 	GetAnonThread(threadID string) (*models.AnonThread, error)
 	UseAnonVote(vote *models.AnonVote) error
-	EndAnonThread(threadID string) error	
+	EndAnonThread(data *models.EndAnonData) error	
 }

@@ -41,3 +41,9 @@ type AnonVote struct {
 	Option     string `json:"option"`
 	PrivateKey string `json:"private_key"`
 }
+
+type EndAnonData struct {
+	ThreadID string   `json:"thread_id"`
+	Keys     []string `json:"keys"`
+	VoteTxs  []string `json:"vote_txs"`
+}

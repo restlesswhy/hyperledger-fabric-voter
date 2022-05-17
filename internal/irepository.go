@@ -8,6 +8,6 @@ type Repository interface {
 	GetThread(threadID string) (*models.Thread, error)
 
 	CreateAnonThread(threadID string, thread []byte) error
-	UpdateThread(threadID string, thread []byte) error
-	GetThread(threadID string) (*models.Thread, error)
+	UpdateAnonThread(threadID string, thread []byte) error
+	GetAnonThread(threadID string) (*models.AnonThread, error)
 }

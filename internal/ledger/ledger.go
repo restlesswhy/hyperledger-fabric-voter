@@ -128,3 +128,77 @@ func errorHandling(err error) error {
 
 	return err
 }
+
+func (l *ledger) CreateAnonThread(params *models.ThreadParams) error {
+
+	logrus.Debug("Start creating thread...")
+
+	args := make([]string, 0)
+	args = append(args, params.ID, params.Category, params.Theme, params.Description)
+	args = append(args, params.Options...)
+
+	_, err := l.client.Submit("CreateAnonThread", client.WithArguments(args...))
+	if err != nil {
+		return errorHandling(err)
+	}
+
+	logrus.Debug("Thread successfuly created!")
+
+	return nil
+}
+
+func (l *ledger) GetAnonThread(threadID string) (*models.AnonThread, error) {
+
+	logrus.Debug("Start quering thread...")
+
+	res, err := l.client.SubmitTransaction("QueryAnonThread", threadID)
+	if err != nil {
+		return nil, errorHandling(err)
+	}
+
+	thread := &models.AnonThread{}
+	err = json.Unmarshal(res, &thread)
+	if err != nil {
+		return nil, err
+	}
+
+	logrus.Debug("Query finded!")
+
+	return thread, nil
+}
+
+func (l *ledger) UseAnonVote(vote *models.AnonVote) error {
+
+	logrus.Debug("Start using anon vote...")
+
+	j, _ := json.Marshal(vote)
+
+	_, err := l.client.Submit("UseVoteAnon", client.WithTransient(map[string][]byte{
+		"option": j,
+	}))
+	if err != nil {
+		return errorHandling(err)
+	}
+
+	logrus.Debug("Anon vote used!")
+
+	return nil
+}
+
+func (l *ledger) EndAnonThread(data *models.EndAnonData) error {
+
+	logrus.Debug("Start closing thread...")
+
+	j, _ := json.Marshal(data)
+
+	_, err := l.client.Submit("EndAnonThread", client.WithTransient(map[string][]byte{
+		"option": j,
+	}))
+	if err != nil {
+		return errorHandling(err)
+	}
+
+	logrus.Debug("Thread closed!")
+
+	return nil
+}
