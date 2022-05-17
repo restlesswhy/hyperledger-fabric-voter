@@ -73,18 +73,6 @@ func CreateDB(pool *pgxpool.Pool, dbName string) error {
 }
 
 func initDB(pool *pgxpool.Pool) error {
-	// query := `
-	// 	CREATE TABLE IF NOT EXISTS threads (
-	// 		thread_id varchar(100) NOT NULL PRIMARY KEY,
-	// 		category varchar(255),
-	// 		theme text,
-	// 		description text NOT NULL,
-	// 		creator text NOT NULL,
-	// 		options JSONB,
-	// 		win_option text[],
-	// 		status varchar(30)
-	// 	);
-	// `
 	query := `CREATE TABLE IF NOT EXISTS threads (
 		thread_id varchar(250) PRIMARY KEY,
 		thread JSONB

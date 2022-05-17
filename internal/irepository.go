@@ -3,9 +3,7 @@ package internal
 import "fabric-voter/internal/models"
 
 type Repository interface {
-	CreateThread(threadID string, thread *models.Thread) error
+	CreateThread(threadID string, thread []byte) error
+	UpdateThread(threadID string, thread []byte) error
 	GetThread(threadID string) (*models.Thread, error)
-	CreateVote(threadID string) (string, error)
-	UseVote(vote *models.Vote) error
-	EndThread(threadID string) error
 }

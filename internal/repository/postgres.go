@@ -21,25 +21,19 @@ func NewRepo(pool *pgxpool.Pool) internal.Repository {
 	}
 }
 
-func (r *repo) CreateThread(threadID string, thread *models.Thread) error {
-	t, err := json.Marshal(thread)
+func (r *repo) CreateThread(threadID string, thread []byte) error {
+	q := `INSERT INTO threads
+			(thread_id, thread)
+			VALUES ($1, $2);`
+	jb := pgtype.JSONB{}
+	err := jb.Set(thread)
 	if err != nil {
-		return errors.Wrap(err, "err marshal thread")
+		return errors.Wrap(err, "jb.Set()")
 	}
-	
-	q := `INSERT INTO threads (thread_id, thread) VALUES ($1, $2);`
-	f := pgtype.JSONB{}
-	err = f.Set(t)
-	if err != nil {
-		return errors.Wrap(err, "err jsonb bytes")
-	}
-	// q := `INSERT INTO threads
-	// 		SELECT thread_id, category, theme, description, creator, options, win_option, status
-	// 		FROM json_populate_record (NULL::threads, $1);`
 
-	_, err = r.pool.Exec(context.Background(), q, threadID, f)
+	_, err = r.pool.Exec(context.Background(), q, threadID, jb)
 	if err != nil {
-		return errors.Wrap(err, "err exec thread")
+		return errors.Wrap(err, "r.pool.Exec()")
 	}
 
 	return nil
@@ -49,32 +43,37 @@ func (r *repo) GetThread(threadID string) (*models.Thread, error) {
 	q := `SELECT thread
 			FROM threads
 			WHERE thread_id = $1;`
-	
-	j := pgtype.JSONB{}
-	err := r.pool.QueryRow(context.Background(), q, threadID).Scan(&j)
+
+	jb := pgtype.JSONB{}
+	err := r.pool.QueryRow(context.Background(), q, threadID).Scan(&jb)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "r.pool.QueryRow()")
 	}
 
 	res := &models.Thread{}
-	err = json.Unmarshal(j.Bytes, &res)
+	err = json.Unmarshal(jb.Bytes, &res)
 	if err != nil {
-		return nil, errors.Wrap(err, "err unmarshal thread")
+		return nil, errors.Wrap(err, "json.Unmarshal()")
 	}
-	
+
 	return res, nil
 }
 
-func (r *repo) CreateVote(threadID string) (string, error) {
+func (r *repo) UpdateThread(threadID string, thread []byte) error {
+	q := `UPDATE threads
+			SET thread = $1
+			WHERE thread_id = $2;`
 
-	return "", nil
-}
+	jb := pgtype.JSONB{}
+	err := jb.Set(thread)
+	if err != nil {
+		return errors.Wrap(err, "jb.Set()")
+	}
 
-func (r *repo) UseVote(vote *models.Vote) error {
+	_, err = r.pool.Exec(context.Background(), q, jb, threadID)
+	if err != nil {
+		return errors.Wrap(err, "r.pool.Exec()")
+	}
 
-	return nil
-}
-
-func (r *repo) EndThread(threadID string) error {
 	return nil
 }
