@@ -23,3 +23,21 @@ type Vote struct {
 	VoteID   string `json:"vote_id"`
 	Option   string `json:"option"`
 }
+
+type AnonThread struct {
+	Category    string              `json:"category"`
+	Theme       string              `json:"theme"`
+	Description string              `json:"description"`
+	Creator     string              `json:"creator"`
+	Votes       []string            `json:"votes"`
+	Options     map[string][]string `json:"options"`
+	WinOption   []string            `json:"win_option"`
+	Status      string              `json:"status"`
+}
+
+type AnonVote struct {
+	ThreadID   string `json:"thread_id"`
+	TxID       string `json:"tx_id"`
+	Option     string `json:"option"`
+	PrivateKey string `json:"private_key"`
+}

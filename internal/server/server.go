@@ -67,7 +67,7 @@ func (s *Server) Run() error {
 
 	network := gateway.GetNetwork(s.cfg.Ledger.ChannelName)
 	contract := network.GetContract(s.cfg.Ledger.ChaincodeName)
-
+	
 	repo := repository.NewRepo(s.pool)
 	ledger := ledger.NewLedger(contract)
 	synchro := synchronizer.NewSynchro(network, repo, s.cfg)
