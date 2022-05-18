@@ -49,16 +49,12 @@ func (s *service) GetThread(threadID string) (*models.Thread, error) {
 		return nil, errors.Wrap(err, "s.repo.GetThread()")
 	}
 
-	// thread, err := s.repo.GetThread(threadID)
-	// if err != nil {
-	// 	return nil, err
-	// }
 	return thread, nil
 }
 
-func (s *service) CreateVote(threadID string) (*models.Vote, error) {
+func (s *service) CreateVote(threadID string, userID string) (*models.Vote, error) {
 
-	vote, err := s.ledger.CreateVote(threadID)
+	vote, err := s.ledger.CreateVote(threadID, userID)
 	if err != nil {
 		return nil, errors.Wrap(err, "s.ledger.CreateVote()")
 	}
@@ -102,9 +98,21 @@ func (s *service) CreateAnonThread(params *models.ThreadParams) (string, error) 
 
 func (s *service) GetAnonThread(threadID string) (*models.AnonThread, error) {
 
-	thread, err := s.ledger.GetAnonThread(threadID)
+	// thread, err := s.ledger.GetAnonThread(threadID)
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "s.ledger.GetThread()")
+	// }
+
+	thread, err := s.repo.GetAnonThread(threadID)
 	if err != nil {
-		return nil, errors.Wrap(err, "s.ledger.GetThread()")
+		if err.Error() == "no rows in result set" {
+			thread, err = s.ledger.GetAnonThread(threadID)
+			if err != nil {
+				return nil, errors.Wrap(err, "s.ledger.GetThread()")
+			}
+			return thread, nil
+		}
+		return nil, errors.Wrap(err, "s.repo.GetThread()")
 	}
 
 	return thread, nil

@@ -11,9 +11,12 @@ import (
 )
 
 const (
-	EVENT_CreateThread = "CreateThread"
-	EVENT_UseVote      = "UseVote"
-	EVENT_EndThread    = "EndThread"
+	EVENT_CreateThread     = "CreateThread"
+	EVENT_UseVote          = "UseVote"
+	EVENT_EndThread        = "EndThread"
+	EVENT_CreateAnonThread = "CreateAnonThread"
+	EVENT_UseAnonVote      = "UseAnonVote"
+	EVENT_EndAnonThread    = "EndAnonThread"
 )
 
 type Synchronizer interface {
@@ -55,6 +58,18 @@ func (s *synchronizer) Run(ctx context.Context) {
 				logrus.Warnf("%s failed update in postgres", id)
 			}
 		case EVENT_EndThread:
+			if err := s.repo.UpdateThread(id, event.Payload); err != nil {
+				logrus.Warnf("%s failed update in postgres", id)
+			}
+		case EVENT_CreateAnonThread:
+			if err := s.repo.CreateThread(id, event.Payload); err != nil {
+				logrus.Warnf("%s failed add into postgres", id)
+			}
+		case EVENT_UseAnonVote:
+			if err := s.repo.UpdateThread(id, event.Payload); err != nil {
+				logrus.Warnf("%s failed update in postgres", id)
+			}
+		case EVENT_EndAnonThread:
 			if err := s.repo.UpdateThread(id, event.Payload); err != nil {
 				logrus.Warnf("%s failed update in postgres", id)
 			}

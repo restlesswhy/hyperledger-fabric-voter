@@ -12,6 +12,7 @@ import (
 
 type ThreadResponse struct {
 	ThreadID string `json:"thread_id"`
+	UserID   string `json:"user_id"`
 }
 
 type handler struct {
@@ -66,7 +67,7 @@ func (h *handler) CreateVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	vote, err := h.service.CreateVote(threadResp.ThreadID)
+	vote, err := h.service.CreateVote(threadResp.ThreadID, threadResp.UserID)
 	if err != nil {
 		httpResp(w, "failed create vote", http.StatusBadRequest)
 		return

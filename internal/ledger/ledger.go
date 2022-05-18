@@ -23,8 +23,8 @@ func NewLedger(client *client.Contract) internal.Ledger {
 	}
 }
 
+// Создать голосование
 func (l *ledger) CreateThread(params *models.ThreadParams) error {
-	logrus.Debug("Start creating thread...")
 
 	args := make([]string, 0)
 	args = append(args, params.ID, params.Category, params.Theme, params.Description)
@@ -35,14 +35,13 @@ func (l *ledger) CreateThread(params *models.ThreadParams) error {
 		return errorHandling(err)
 	}
 
-	logrus.Debug("Thread successfuly created!")
 	return nil
 }
 
-func (l *ledger) CreateVote(threadID string) (*models.Vote, error) {
-	logrus.Debug("Start creating vote...")
+// Создать голос к определенному голосованию
+func (l *ledger) CreateVote(threadID string, userID string) (*models.Vote, error) {
 
-	txid, err := l.client.SubmitTransaction("CreateVote", threadID)
+	txid, err := l.client.SubmitTransaction("CreateVote", threadID, userID)
 	if err != nil {
 		return nil, errorHandling(err)
 	}
@@ -53,36 +52,33 @@ func (l *ledger) CreateVote(threadID string) (*models.Vote, error) {
 		Option:   "insert your choice",
 	}
 
-	logrus.Debug("Vote successfuly created!")
 	return vote, nil
 }
 
+// Использовать голос
 func (l *ledger) UseVote(vote *models.Vote) error {
-	logrus.Debug("Start using anon vote...")
 
 	_, err := l.client.SubmitTransaction("UseVote", vote.ThreadID, vote.VoteID, vote.Option)
 	if err != nil {
 		return errorHandling(err)
 	}
 
-	logrus.Debug("Anon vote used!")
 	return nil
 }
 
+// Завершить голосвание
 func (l *ledger) EndThread(threadID string) error {
-	logrus.Debug("Start closing thread...")
 
 	_, err := l.client.SubmitTransaction("EndThread", threadID)
 	if err != nil {
 		return errorHandling(err)
 	}
 
-	logrus.Debug("Thread closed!")
 	return nil
 }
 
+// Посмотреть текущее состояние голосования
 func (l *ledger) GetThread(threadID string) (*models.Thread, error) {
-	logrus.Debug("Start quering thread...")
 
 	res, err := l.client.SubmitTransaction("QueryThread", threadID)
 	if err != nil {
@@ -95,7 +91,6 @@ func (l *ledger) GetThread(threadID string) (*models.Thread, error) {
 		return nil, err
 	}
 
-	logrus.Debug("Query finded!")
 	return thread, nil
 }
 
@@ -129,9 +124,8 @@ func errorHandling(err error) error {
 	return err
 }
 
+// Создать анонимное голосование
 func (l *ledger) CreateAnonThread(params *models.ThreadParams) error {
-
-	logrus.Debug("Start creating thread...")
 
 	args := make([]string, 0)
 	args = append(args, params.ID, params.Category, params.Theme, params.Description)
@@ -142,14 +136,11 @@ func (l *ledger) CreateAnonThread(params *models.ThreadParams) error {
 		return errorHandling(err)
 	}
 
-	logrus.Debug("Thread successfuly created!")
-
 	return nil
 }
 
+// Посмотреть текущее состояние анонимного голосования
 func (l *ledger) GetAnonThread(threadID string) (*models.AnonThread, error) {
-
-	logrus.Debug("Start quering thread...")
 
 	res, err := l.client.SubmitTransaction("QueryAnonThread", threadID)
 	if err != nil {
@@ -162,32 +153,26 @@ func (l *ledger) GetAnonThread(threadID string) (*models.AnonThread, error) {
 		return nil, err
 	}
 
-	logrus.Debug("Query finded!")
-
 	return thread, nil
 }
 
+// Использовать голос анонимно
 func (l *ledger) UseAnonVote(vote *models.AnonVote) error {
-
-	logrus.Debug("Start using anon vote...")
 
 	j, _ := json.Marshal(vote)
 
-	_, err := l.client.Submit("UseVoteAnon", client.WithTransient(map[string][]byte{
+	_, err := l.client.Submit("UseAnonVote", client.WithTransient(map[string][]byte{
 		"option": j,
 	}))
 	if err != nil {
 		return errorHandling(err)
 	}
 
-	logrus.Debug("Anon vote used!")
-
 	return nil
 }
 
+// Завершить анонимное голосование и подвести итоги
 func (l *ledger) EndAnonThread(data *models.EndAnonData) error {
-
-	logrus.Debug("Start closing thread...")
 
 	j, _ := json.Marshal(data)
 
@@ -197,8 +182,6 @@ func (l *ledger) EndAnonThread(data *models.EndAnonData) error {
 	if err != nil {
 		return errorHandling(err)
 	}
-
-	logrus.Debug("Thread closed!")
 
 	return nil
 }

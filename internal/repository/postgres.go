@@ -78,14 +78,22 @@ func (r *repo) UpdateThread(threadID string, thread []byte) error {
 	return nil
 }
 
-func (r *repo) CreateAnonThread(threadID string, thread []byte) error {
-	return nil
-}
-
-func (r *repo) UpdateAnonThread(threadID string, thread []byte) error {
-	return nil
-}
-
 func (r *repo) GetAnonThread(threadID string) (*models.AnonThread, error) {
-	return nil, nil
+	q := `SELECT thread
+			FROM threads
+			WHERE thread_id = $1;`
+
+	jb := pgtype.JSONB{}
+	err := r.pool.QueryRow(context.Background(), q, threadID).Scan(&jb)
+	if err != nil {
+		return nil, errors.Wrap(err, "r.pool.QueryRow()")
+	}
+
+	res := &models.AnonThread{}
+	err = json.Unmarshal(jb.Bytes, &res)
+	if err != nil {
+		return nil, errors.Wrap(err, "json.Unmarshal()")
+	}
+
+	return res, nil
 }
