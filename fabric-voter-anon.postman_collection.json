@@ -1,0 +1,137 @@
+{
+	"info": {
+		"_postman_id": "c5b1b9ef-0fc6-4537-a583-f8e983d271f2",
+		"name": "fabric-voter-anon",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "create thread",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"category\": \"food\",\n    \"theme\": \"dinner\",\n    \"description\": \"Who want to eat?\",\n    \"options\": [\"a\", \"b\", \"c\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/anon/create_thread",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"anon",
+						"create_thread"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get thread",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"thread_id\": \"thread1652905746133\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/anon/get_thread",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"anon",
+						"get_thread"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "use vote",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"thread_id\": \"thread1652905746133\",\n    \"tx_id\": \"a80317b05ff0176a71f7052d3b3ec4801db8c649305a282558a241b2f3f64e55\",\n    \"option\": \"b\",\n    \"private_key\": \"buba2\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/anon/use_vote",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"anon",
+						"use_vote"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "end thread",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"thread_id\": \"thread1652905746133\",\n    \"keys\": [\"buba\", \"buba2\"],\n    \"vote_txs\": [\"a80317b05ff0176a71f7052d3b3ec4801db8c649305a282558a241b2f3f64e55\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/anon/end_thread",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"anon",
+						"end_thread"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
