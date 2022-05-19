@@ -52,11 +52,11 @@ func (s *service) GetThread(threadID string) (*models.Thread, error) {
 	return thread, nil
 }
 
-func (s *service) CreateVote(threadID string, userID string) (*models.Vote, error) {
+func (s *service) CreateVote(threadID string, userID string) (string, error) {
 
 	vote, err := s.ledger.CreateVote(threadID, userID)
 	if err != nil {
-		return nil, errors.Wrap(err, "s.ledger.CreateVote()")
+		return "", errors.Wrap(err, "s.ledger.CreateVote()")
 	}
 
 	return vote, nil

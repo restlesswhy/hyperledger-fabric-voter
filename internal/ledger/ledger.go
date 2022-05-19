@@ -39,20 +39,14 @@ func (l *ledger) CreateThread(params *models.ThreadParams) error {
 }
 
 // Создать голос к определенному голосованию
-func (l *ledger) CreateVote(threadID string, userID string) (*models.Vote, error) {
+func (l *ledger) CreateVote(threadID string, userID string) (string, error) {
 
 	txid, err := l.client.SubmitTransaction("CreateVote", threadID, userID)
 	if err != nil {
-		return nil, errorHandling(err)
+		return "", errorHandling(err)
 	}
 
-	vote := &models.Vote{
-		ThreadID: threadID,
-		VoteID:   string(txid),
-		Option:   "insert your choice",
-	}
-
-	return vote, nil
+	return string(txid), nil
 }
 
 // Использовать голос
