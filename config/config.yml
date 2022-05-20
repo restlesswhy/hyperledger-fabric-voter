@@ -13,7 +13,7 @@ ledger:
   certPath: signature/msp/signcerts/cert.pem
   keyPath: signature/msp/keystore/
   tlsCertPath: signature/tls/ca.crt
-  peerEndpoint: localhost:7051
+  peerEndpoint: 10.10.10.113:7051
   gatewayPeer: peer0.org1.example.com
   channelName: mychannel
   chaincodeName: basic
